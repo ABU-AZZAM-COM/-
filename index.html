@@ -21,6 +21,7 @@
       justify-content: center;
       position: relative;
       overflow-x: hidden;
+      flex-direction: column;
     }
 
     /* Splash overlay */
@@ -354,13 +355,15 @@
       color: #c6a45e;
     }
 
-    footer {
+    .footer-credit {
       text-align: center;
       margin-top: 20px;
-      font-size: 12px;
-      color: #555;
+      font-size: 13px;
+      color: #c6a45e;
       letter-spacing: 1px;
-      z-index: 2;
+      border-top: 1px solid #2a2f3a;
+      padding-top: 16px;
+      font-weight: 500;
     }
 
     @media (max-width: 500px) {
@@ -463,7 +466,12 @@
               <label class="req">قياس البدلة</label>
               <select id="suitSize">
                 <option value="" disabled selected>اختر القياس</option>
-                <option>48</option><option>50</option><option>52</option><option>54</option><option>56</option><option>58</option><option>60</option>
+                <option>S</option>
+                <option>M</option>
+                <option>L</option>
+                <option>XL</option>
+                <option>XXL</option>
+                <option>XXXL</option>
               </select>
             </div>
             <div class="row">
@@ -587,6 +595,9 @@
           <div class="alert" id="alertBox"></div>
         </div>
       </div>
+
+      <!-- Footer inside card -->
+      <div class="footer-credit">إعداد وتصميم أبو عزام</div>
     </div>
   </div>
 
@@ -596,14 +607,13 @@
       <div style="font-size:50px; color:#c6a45e;">🛡️</div>
       <h2 style="color:#c6a45e;">تم التسجيل مسبقاً</h2>
       <p style="color:#aaa;">لقد قمت بتسجيل بياناتك من هذا الجهاز ولا حاجة لإعادة التسجيل.</p>
+      <div class="footer-credit">إعداد وتصميم أبو عزام</div>
     </div>
   </div>
 
-  <footer>إعداد وتصميم أبو عزام</footer>
-
   <script>
     (function() {
-      // ========== CONFIG: استبدل برابط تطبيق الويب الخاص بك ==========
+      // رابط السكربت المقدم من المستخدم
       const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywunjzAdRbHCpQW_oRRrwrJQKBzRgw1AAoMR-J0AktjkG7y6qQwsRts_LbrWqZtYKqDw/exec';
 
       // Elements
@@ -631,10 +641,7 @@
         }, 500);
       }, 2500);
 
-      // Simulate loading then check localStorage and show content
       setTimeout(() => {
-        const militaryIdInput = document.getElementById('militaryId');
-        // Check if previously registered
         if (localStorage.getItem('registeredMilitaryId')) {
           spinner.style.opacity = '0';
           spinner.style.display = 'none';
@@ -670,7 +677,6 @@
             radios.forEach(r => r.classList.remove('selected'));
             this.classList.add('selected');
             this.querySelector('input').checked = true;
-            // Show/hide conditional fields
             const value = this.dataset.value;
             if (name === 'suit') {
               document.getElementById('suitDetails').classList.toggle('show', value === 'yes');
@@ -719,7 +725,6 @@
       }
 
       document.getElementById('nextToStep2').addEventListener('click', () => {
-        // Validation for step 1
         const fullName = document.getElementById('fullName').value.trim();
         const militaryId = document.getElementById('militaryId').value.trim();
         const job = document.getElementById('jobTitle').value;
@@ -736,7 +741,6 @@
 
       document.getElementById('prevToStep1').addEventListener('click', () => showSection(1));
       document.getElementById('nextToStep3').addEventListener('click', () => {
-        // Validate step 2: all radio groups must have selection
         const radioGroups = ['suit', 'shoes', 'bag', 'rifleHolder', 'redBeret', 'belt', 'gloves'];
         for (let name of radioGroups) {
           const selected = document.querySelector(`input[name="${name}"]:checked`);
@@ -745,7 +749,6 @@
             return;
           }
         }
-        // Validate conditional fields if yes
         if (document.querySelector('input[name="suit"]:checked').value === 'yes') {
           if (!document.getElementById('suitSize').value || !document.getElementById('suitMonth').value || !document.getElementById('suitYear').value) {
             alert('يرجى إكمال تفاصيل البدلة.');
@@ -758,7 +761,6 @@
             return;
           }
         }
-        // Build summary
         buildSummary();
         showSection(3);
       });
@@ -805,12 +807,6 @@
       // ---------- Form Submission ----------
       submitBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        if (SCRIPT_URL === 'PASTE_YOUR_SCRIPT_URL_HERE') {
-          alertBox.textContent = 'الرجاء إدخال رابط السكربت داخل الكود.';
-          alertBox.style.display = 'block';
-          return;
-        }
-        // Collect final data
         const fullName = document.getElementById('fullName').value.trim();
         const militaryId = document.getElementById('militaryId').value.trim();
         const job = document.getElementById('jobTitle').value;
@@ -863,6 +859,7 @@
                 <div style="font-size:50px; color:#c6a45e;">🎖️</div>
                 <h2 style="color:#c6a45e;">تم التسجيل بنجاح</h2>
                 <p style="color:#aaa;">شكراً لك، تم استلام بياناتك.</p>
+                <div class="footer-credit">إعداد وتصميم أبو عزام</div>
               </div>`;
           } else if (data.result === 'duplicate') {
             alertBox.textContent = 'هذا الرقم العسكري مسجل مسبقاً في قاعدة البيانات.';
