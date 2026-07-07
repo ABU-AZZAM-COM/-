@@ -1,1 +1,890 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>منظومة التسجيل العسكري</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
+    body {
+      font-family: 'Tajawal', 'Segoe UI', sans-serif;
+      background: #0e1117;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Splash overlay */
+    .splash-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.5s ease;
+      flex-direction: column;
+    }
+
+    .splash-popup {
+      background: #1b1f2a;
+      border: 2px solid #c6a45e;
+      border-radius: 20px;
+      padding: 30px 25px;
+      text-align: center;
+      max-width: 340px;
+      width: 90%;
+      box-shadow: 0 0 30px rgba(198,164,94,0.3);
+      animation: popIn 0.4s ease;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .splash-popup h2 {
+      color: #c6a45e;
+      font-size: 24px;
+      margin-bottom: 12px;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .splash-popup p {
+      color: #aaa;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .spinner-container {
+      position: fixed;
+      inset: 0;
+      background: rgba(14,17,23,0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(198,164,94,0.2);
+      border-top-color: #c6a45e;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .spinner-container p {
+      color: #c6a45e;
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    /* Main card */
+    .container {
+      width: 100%;
+      max-width: 550px;
+      margin: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card {
+      background: #151a24;
+      border-radius: 24px;
+      padding: 28px 22px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 0 2px rgba(198,164,94,0.3);
+      border: 1px solid #2a2f3a;
+    }
+
+    .title-section {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .title-section h1 {
+      font-family: 'Cairo', sans-serif;
+      color: #c6a45e;
+      font-size: 26px;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      position: relative;
+      color: #555;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .step.active, .step.completed {
+      color: #c6a45e;
+    }
+
+    .step-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #2a2f3a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      margin-bottom: 8px;
+      border: 2px solid #555;
+      transition: all 0.3s;
+      font-weight: bold;
+    }
+
+    .step.active .step-icon, .step.completed .step-icon {
+      background: #c6a45e;
+      color: #0e1117;
+      border-color: #c6a45e;
+    }
+
+    .step-line {
+      height: 2px;
+      background: #2a2f3a;
+      flex: 1;
+      margin: 0 -10px;
+      margin-bottom: 24px;
+      transition: background 0.3s;
+    }
+
+    .step-line.completed {
+      background: #c6a45e;
+    }
+
+    /* Form sections */
+    .form-section {
+      display: none;
+      animation: fadeSlide 0.4s ease;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #bbb;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .req::after {
+      content: " *";
+      color: #e05555;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 14px 16px;
+      background: #1e2530;
+      border: 1px solid #2e3540;
+      border-radius: 10px;
+      color: #e0e0e0;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+      margin-bottom: 18px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #c6a45e;
+      box-shadow: 0 0 0 3px rgba(198,164,94,0.2);
+    }
+
+    .field-group {
+      margin-bottom: 6px;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .radio-option {
+      flex: 1;
+      background: #1e2530;
+      border: 1px solid #2e3540;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .radio-option.selected {
+      background: #2a3420;
+      border-color: #c6a45e;
+      color: #c6a45e;
+    }
+
+    .radio-option input {
+      display: none;
+    }
+
+    .conditional-fields {
+      display: none;
+      animation: fadeSlide 0.3s;
+    }
+
+    .conditional-fields.show {
+      display: block;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row > * {
+      flex: 1;
+    }
+
+    button {
+      background: linear-gradient(135deg, #c6a45e, #9e8340);
+      border: none;
+      color: #0e1117;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-family: 'Cairo', sans-serif;
+      letter-spacing: 1px;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-container {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn-container button:first-child {
+      background: transparent;
+      border: 1px solid #c6a45e;
+      color: #c6a45e;
+    }
+
+    .alert {
+      background: #2e1e1e;
+      border: 1px solid #c6a45e;
+      color: #e0e0e0;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .summary-list {
+      list-style: none;
+      margin-bottom: 24px;
+    }
+
+    .summary-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #2a2f3a;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .success-message {
+      text-align: center;
+      padding: 40px 20px;
+      display: none;
+    }
+
+    .success-message .icon {
+      font-size: 50px;
+      color: #c6a45e;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: #555;
+      letter-spacing: 1px;
+      z-index: 2;
+    }
+
+    @media (max-width: 500px) {
+      .card {
+        padding: 20px 15px;
+      }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Splash Welcome Popup -->
+  <div class="splash-overlay" id="splash">
+    <div class="splash-popup">
+      <h2>🪖 أهلاً بك</h2>
+      <p>يرجى تعبئة جميع البيانات بدقة ووفق الجداول المعتمدة</p>
+    </div>
+  </div>
+
+  <!-- Spinner Loading -->
+  <div class="spinner-container" id="spinner">
+    <div class="spinner"></div>
+    <p>جارٍ تجهيز النموذج...</p>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container" id="mainContainer" style="display:none;">
+    <div class="card">
+      <div class="title-section">
+        <h1>نموذج التسجيل العسكري</h1>
+      </div>
+
+      <!-- Progress Bar Steps -->
+      <div class="progress-steps" id="progressSteps">
+        <div class="step active" data-step="1">
+          <div class="step-icon">1</div>
+          <span>الأساسية</span>
+        </div>
+        <div class="step-line" id="line1"></div>
+        <div class="step" data-step="2">
+          <div class="step-icon">2</div>
+          <span>التجهيزات</span>
+        </div>
+        <div class="step-line" id="line2"></div>
+        <div class="step" data-step="3">
+          <div class="step-icon">3</div>
+          <span>مراجعة</span>
+        </div>
+      </div>
+
+      <!-- FORM SECTIONS -->
+      <div id="formContainer">
+        <!-- Step 1: Basic Info -->
+        <div class="form-section active" data-section="1">
+          <div class="field-group">
+            <label class="req">الاسم الثلاثي</label>
+            <input type="text" id="fullName" placeholder="أدخل الاسم الثلاثي" required>
+          </div>
+          <div class="field-group">
+            <label class="req">الرقم العسكري</label>
+            <input type="text" id="militaryId" placeholder="أدخل الرقم العسكري" required inputmode="numeric">
+          </div>
+          <div class="field-group">
+            <label class="req">المسمى الوظيفي</label>
+            <select id="jobTitle" required>
+              <option value="" disabled selected>اختر المسمى</option>
+              <option value="ضابط قسم">ضابط قسم</option>
+              <option value="صف ضابط قسم">صف ضابط قسم</option>
+              <option value="قائد سرية">قائد سرية</option>
+              <option value="قائد مجموعة">قائد مجموعة</option>
+              <option value="سائق">سائق</option>
+              <option value="عنصر">عنصر</option>
+              <option value="أخرى">أخرى</option>
+            </select>
+          </div>
+          <div class="field-group" id="otherJobContainer" style="display:none;">
+            <label class="req">حدد المسمى (أخرى)</label>
+            <input type="text" id="otherJob" placeholder="اكتب المسمى الوظيفي">
+          </div>
+          <button type="button" id="nextToStep2">التالي ←</button>
+        </div>
+
+        <!-- Step 2: Equipment -->
+        <div class="form-section" data-section="2">
+          <!-- بدلة عسكرية -->
+          <div class="field-group">
+            <label class="req">هل تملك بدلة عسكرية؟</label>
+            <div class="radio-group" data-name="suit">
+              <label class="radio-option" data-value="yes">
+                <input type="radio" name="suit" value="yes"> نعم
+              </label>
+              <label class="radio-option" data-value="no">
+                <input type="radio" name="suit" value="no"> لا
+              </label>
+            </div>
+          </div>
+          <div class="conditional-fields" id="suitDetails">
+            <div class="field-group">
+              <label class="req">قياس البدلة</label>
+              <select id="suitSize">
+                <option value="" disabled selected>اختر القياس</option>
+                <option>48</option><option>50</option><option>52</option><option>54</option><option>56</option><option>58</option><option>60</option>
+              </select>
+            </div>
+            <div class="row">
+              <div class="field-group">
+                <label class="req">شهر الاستلام</label>
+                <select id="suitMonth">
+                  <option value="" disabled selected>الشهر</option>
+                  <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+                  <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+                  <option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="req">سنة الاستلام</label>
+                <select id="suitYear">
+                  <option value="" disabled selected>السنة</option>
+                  <option value="2025">2025</option>
+                  <option value="2026">2026</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- حذاء عسكري -->
+          <div class="field-group">
+            <label class="req">هل استلمت حذاء عسكري؟</label>
+            <div class="radio-group" data-name="shoes">
+              <label class="radio-option" data-value="yes">
+                <input type="radio" name="shoes" value="yes"> نعم
+              </label>
+              <label class="radio-option" data-value="no">
+                <input type="radio" name="shoes" value="no"> لا
+              </label>
+            </div>
+          </div>
+          <div class="conditional-fields" id="shoesDetails">
+            <div class="field-group">
+              <label class="req">قياس الحذاء</label>
+              <select id="shoesSize">
+                <option value="" disabled selected>اختر القياس</option>
+                <option>36</option><option>37</option><option>38</option><option>39</option><option>40</option>
+                <option>41</option><option>42</option><option>43</option><option>44</option><option>45</option><option>46</option>
+              </select>
+            </div>
+            <div class="row">
+              <div class="field-group">
+                <label class="req">شهر الاستلام</label>
+                <select id="shoesMonth">
+                  <option value="" disabled selected>الشهر</option>
+                  <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+                  <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+                  <option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="req">سنة الاستلام</label>
+                <select id="shoesYear">
+                  <option value="" disabled selected>السنة</option>
+                  <option value="2025">2025</option>
+                  <option value="2026">2026</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Other equipment yes/no -->
+          <div class="field-group">
+            <label class="req">هل استلمت حقيبة درع؟</label>
+            <div class="radio-group" data-name="bag">
+              <label class="radio-option" data-value="yes"><input type="radio" name="bag" value="yes"> نعم</label>
+              <label class="radio-option" data-value="no"><input type="radio" name="bag" value="no"> لا</label>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="req">حامل بندقية؟</label>
+            <div class="radio-group" data-name="rifleHolder">
+              <label class="radio-option" data-value="yes"><input type="radio" name="rifleHolder" value="yes"> نعم</label>
+              <label class="radio-option" data-value="no"><input type="radio" name="rifleHolder" value="no"> لا</label>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="req">بِيريه لون أحمر؟</label>
+            <div class="radio-group" data-name="redBeret">
+              <label class="radio-option" data-value="yes"><input type="radio" name="redBeret" value="yes"> نعم</label>
+              <label class="radio-option" data-value="no"><input type="radio" name="redBeret" value="no"> لا</label>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="req">نطاق عسكري؟</label>
+            <div class="radio-group" data-name="belt">
+              <label class="radio-option" data-value="yes"><input type="radio" name="belt" value="yes"> نعم</label>
+              <label class="radio-option" data-value="no"><input type="radio" name="belt" value="no"> لا</label>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="req">قفازات؟</label>
+            <div class="radio-group" data-name="gloves">
+              <label class="radio-option" data-value="yes"><input type="radio" name="gloves" value="yes"> نعم</label>
+              <label class="radio-option" data-value="no"><input type="radio" name="gloves" value="no"> لا</label>
+            </div>
+          </div>
+
+          <div class="btn-container">
+            <button type="button" id="prevToStep1">→ السابق</button>
+            <button type="button" id="nextToStep3">مراجعة ←</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Review -->
+        <div class="form-section" data-section="3">
+          <h3 style="color:#c6a45e; margin-bottom:16px;">ملخص البيانات</h3>
+          <ul class="summary-list" id="summaryList"></ul>
+          <div class="btn-container">
+            <button type="button" id="prevToStep2">→ السابق</button>
+            <button type="submit" id="submitBtn">إرسال البيانات ✅</button>
+          </div>
+          <div class="alert" id="alertBox"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Already registered message (hidden by default) -->
+  <div class="container" id="alreadyRegistered" style="display:none;">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:50px; color:#c6a45e;">🛡️</div>
+      <h2 style="color:#c6a45e;">تم التسجيل مسبقاً</h2>
+      <p style="color:#aaa;">لقد قمت بتسجيل بياناتك من هذا الجهاز ولا حاجة لإعادة التسجيل.</p>
+    </div>
+  </div>
+
+  <footer>إعداد وتصميم أبو عزام</footer>
+
+  <script>
+    (function() {
+      // ========== CONFIG: استبدل برابط تطبيق الويب الخاص بك ==========
+      const SCRIPT_URL = 'PASTE_YOUR_SCRIPT_URL_HERE';
+
+      // Elements
+      const splash = document.getElementById('splash');
+      const spinner = document.getElementById('spinner');
+      const mainContainer = document.getElementById('mainContainer');
+      const alreadyRegisteredDiv = document.getElementById('alreadyRegistered');
+      const sections = document.querySelectorAll('.form-section');
+      const steps = document.querySelectorAll('.step');
+      const line1 = document.getElementById('line1');
+      const line2 = document.getElementById('line2');
+      const summaryList = document.getElementById('summaryList');
+      const alertBox = document.getElementById('alertBox');
+      const submitBtn = document.getElementById('submitBtn');
+
+      let currentStep = 1;
+
+      // ---------- Splash & Loading sequence ----------
+      setTimeout(() => {
+        splash.style.opacity = '0';
+        setTimeout(() => {
+          splash.style.display = 'none';
+          spinner.style.opacity = '1';
+          spinner.style.pointerEvents = 'auto';
+        }, 500);
+      }, 2500);
+
+      // Simulate loading then check localStorage and show content
+      setTimeout(() => {
+        const militaryIdInput = document.getElementById('militaryId');
+        // Check if previously registered
+        if (localStorage.getItem('registeredMilitaryId')) {
+          spinner.style.opacity = '0';
+          spinner.style.display = 'none';
+          alreadyRegisteredDiv.style.display = 'block';
+        } else {
+          spinner.style.opacity = '0';
+          setTimeout(() => {
+            spinner.style.display = 'none';
+            mainContainer.style.display = 'block';
+          }, 300);
+        }
+      }, 3500);
+
+      // ---------- Job title "أخرى" toggle ----------
+      const jobSelect = document.getElementById('jobTitle');
+      const otherJobContainer = document.getElementById('otherJobContainer');
+      jobSelect.addEventListener('change', function() {
+        if (jobSelect.value === 'أخرى') {
+          otherJobContainer.style.display = 'block';
+          document.getElementById('otherJob').setAttribute('required', '');
+        } else {
+          otherJobContainer.style.display = 'none';
+          document.getElementById('otherJob').removeAttribute('required');
+        }
+      });
+
+      // ---------- Radio button styling and conditional show/hide ----------
+      document.querySelectorAll('.radio-group').forEach(group => {
+        const radios = group.querySelectorAll('.radio-option');
+        const name = group.dataset.name;
+        radios.forEach(option => {
+          option.addEventListener('click', function() {
+            radios.forEach(r => r.classList.remove('selected'));
+            this.classList.add('selected');
+            this.querySelector('input').checked = true;
+            // Show/hide conditional fields
+            const value = this.dataset.value;
+            if (name === 'suit') {
+              document.getElementById('suitDetails').classList.toggle('show', value === 'yes');
+              if (value === 'no') {
+                document.getElementById('suitSize').removeAttribute('required');
+                document.getElementById('suitMonth').removeAttribute('required');
+                document.getElementById('suitYear').removeAttribute('required');
+              } else {
+                document.getElementById('suitSize').setAttribute('required', '');
+                document.getElementById('suitMonth').setAttribute('required', '');
+                document.getElementById('suitYear').setAttribute('required', '');
+              }
+            } else if (name === 'shoes') {
+              document.getElementById('shoesDetails').classList.toggle('show', value === 'yes');
+              if (value === 'no') {
+                document.getElementById('shoesSize').removeAttribute('required');
+                document.getElementById('shoesMonth').removeAttribute('required');
+                document.getElementById('shoesYear').removeAttribute('required');
+              } else {
+                document.getElementById('shoesSize').setAttribute('required', '');
+                document.getElementById('shoesMonth').setAttribute('required', '');
+                document.getElementById('shoesYear').setAttribute('required', '');
+              }
+            }
+          });
+        });
+      });
+
+      // ---------- Step navigation ----------
+      function updateSteps() {
+        steps.forEach(step => step.classList.remove('active', 'completed'));
+        if (currentStep >= 1) steps[0].classList.add('completed');
+        if (currentStep >= 2) steps[1].classList.add('completed');
+        steps[currentStep-1].classList.add('active');
+        if (currentStep > 1) line1.classList.add('completed');
+        else line1.classList.remove('completed');
+        if (currentStep > 2) line2.classList.add('completed');
+        else line2.classList.remove('completed');
+      }
+
+      function showSection(step) {
+        sections.forEach(sec => sec.classList.remove('active'));
+        document.querySelector(`[data-section="${step}"]`).classList.add('active');
+        currentStep = step;
+        updateSteps();
+      }
+
+      document.getElementById('nextToStep2').addEventListener('click', () => {
+        // Validation for step 1
+        const fullName = document.getElementById('fullName').value.trim();
+        const militaryId = document.getElementById('militaryId').value.trim();
+        const job = document.getElementById('jobTitle').value;
+        if (!fullName || !militaryId || !job) {
+          alert('يرجى ملء جميع الحقول الأساسية.');
+          return;
+        }
+        if (job === 'أخرى' && !document.getElementById('otherJob').value.trim()) {
+          alert('يرجى كتابة المسمى الوظيفي في حقل أخرى.');
+          return;
+        }
+        showSection(2);
+      });
+
+      document.getElementById('prevToStep1').addEventListener('click', () => showSection(1));
+      document.getElementById('nextToStep3').addEventListener('click', () => {
+        // Validate step 2: all radio groups must have selection
+        const radioGroups = ['suit', 'shoes', 'bag', 'rifleHolder', 'redBeret', 'belt', 'gloves'];
+        for (let name of radioGroups) {
+          const selected = document.querySelector(`input[name="${name}"]:checked`);
+          if (!selected) {
+            alert('يرجى الإجابة على جميع أسئلة التجهيزات.');
+            return;
+          }
+        }
+        // Validate conditional fields if yes
+        if (document.querySelector('input[name="suit"]:checked').value === 'yes') {
+          if (!document.getElementById('suitSize').value || !document.getElementById('suitMonth').value || !document.getElementById('suitYear').value) {
+            alert('يرجى إكمال تفاصيل البدلة.');
+            return;
+          }
+        }
+        if (document.querySelector('input[name="shoes"]:checked').value === 'yes') {
+          if (!document.getElementById('shoesSize').value || !document.getElementById('shoesMonth').value || !document.getElementById('shoesYear').value) {
+            alert('يرجى إكمال تفاصيل الحذاء.');
+            return;
+          }
+        }
+        // Build summary
+        buildSummary();
+        showSection(3);
+      });
+
+      document.getElementById('prevToStep2').addEventListener('click', () => showSection(2));
+
+      function buildSummary() {
+        const fullName = document.getElementById('fullName').value.trim();
+        const militaryId = document.getElementById('militaryId').value.trim();
+        const job = document.getElementById('jobTitle').value;
+        const otherJob = job === 'أخرى' ? document.getElementById('otherJob').value.trim() : '';
+        const suitYes = document.querySelector('input[name="suit"]:checked').value === 'yes';
+        const suitSize = suitYes ? document.getElementById('suitSize').value : '';
+        const suitMonth = suitYes ? document.getElementById('suitMonth').value : '';
+        const suitYear = suitYes ? document.getElementById('suitYear').value : '';
+        const shoesYes = document.querySelector('input[name="shoes"]:checked').value === 'yes';
+        const shoesSize = shoesYes ? document.getElementById('shoesSize').value : '';
+        const shoesMonth = shoesYes ? document.getElementById('shoesMonth').value : '';
+        const shoesYear = shoesYes ? document.getElementById('shoesYear').value : '';
+        const bag = document.querySelector('input[name="bag"]:checked').value === 'yes' ? 'تم الاستلام' : 'لم يستلم';
+        const rifleHolder = document.querySelector('input[name="rifleHolder"]:checked').value === 'yes' ? 'تم الاستلام' : 'لم يستلم';
+        const redBeret = document.querySelector('input[name="redBeret"]:checked').value === 'yes' ? 'تم الاستلام' : 'لم يستلم';
+        const belt = document.querySelector('input[name="belt"]:checked').value === 'yes' ? 'تم الاستلام' : 'لم يستلم';
+        const gloves = document.querySelector('input[name="gloves"]:checked').value === 'yes' ? 'تم الاستلام' : 'لم يستلم';
+
+        const summary = [
+          { label: 'الاسم', value: fullName },
+          { label: 'الرقم العسكري', value: militaryId },
+          { label: 'المسمى الوظيفي', value: job + (job==='أخرى' ? ` (${otherJob})` : '') },
+          { label: 'بدلة عسكرية', value: suitYes ? `تم الاستلام - قياس ${suitSize} - ${suitMonth}/${suitYear}` : 'لم يستلم' },
+          { label: 'حذاء عسكري', value: shoesYes ? `تم الاستلام - قياس ${shoesSize} - ${shoesMonth}/${shoesYear}` : 'لم يستلم' },
+          { label: 'حقيبة درع', value: bag },
+          { label: 'حامل بندقية', value: rifleHolder },
+          { label: 'بيريه أحمر', value: redBeret },
+          { label: 'نطاق عسكري', value: belt },
+          { label: 'قفازات', value: gloves }
+        ];
+
+        summaryList.innerHTML = summary.map(item => 
+          `<li><span>${item.label}</span><span>${item.value}</span></li>`
+        ).join('');
+      }
+
+      // ---------- Form Submission ----------
+      submitBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (SCRIPT_URL === 'PASTE_YOUR_SCRIPT_URL_HERE') {
+          alertBox.textContent = 'الرجاء إدخال رابط السكربت داخل الكود.';
+          alertBox.style.display = 'block';
+          return;
+        }
+        // Collect final data
+        const fullName = document.getElementById('fullName').value.trim();
+        const militaryId = document.getElementById('militaryId').value.trim();
+        const job = document.getElementById('jobTitle').value;
+        const otherJob = job === 'أخرى' ? document.getElementById('otherJob').value.trim() : '';
+        const suitVal = document.querySelector('input[name="suit"]:checked').value;
+        const suitYes = suitVal === 'yes';
+        const suitStatus = suitYes ? 'تم الاستلام' : 'لم يستلم';
+        const suitSize = suitYes ? document.getElementById('suitSize').value : '';
+        const suitMonth = suitYes ? document.getElementById('suitMonth').value : '';
+        const suitYear = suitYes ? document.getElementById('suitYear').value : '';
+        const suitDate = suitYes ? `${suitMonth} ${suitYear}` : '';
+        const shoesVal = document.querySelector('input[name="shoes"]:checked').value;
+        const shoesYes = shoesVal === 'yes';
+        const shoesStatus = shoesYes ? 'تم الاستلام' : 'لم يستلم';
+        const shoesSize = shoesYes ? document.getElementById('shoesSize').value : '';
+        const shoesMonth = shoesYes ? document.getElementById('shoesMonth').value : '';
+        const shoesYear = shoesYes ? document.getElementById('shoesYear').value : '';
+        const shoesDate = shoesYes ? `${shoesMonth} ${shoesYear}` : '';
+        const bag = document.querySelector('input[name="bag"]:checked').value === 'yes' ? 'تم الاستلام' : 'لم يستلم';
+        const rifleHolder = document.querySelector('input[name="rifleHolder"]:checked').value === 'yes' ? 'تم الاستلام' : 'لم يستلم';
+        const redBeret = document.querySelector('input[name="redBeret"]:checked').value === 'yes' ? 'تم الاستلام' : 'لم يستلم';
+        const belt = document.querySelector('input[name="belt"]:checked').value === 'yes' ? 'تم الاستلام' : 'لم يستلم';
+        const gloves = document.querySelector('input[name="gloves"]:checked').value === 'yes' ? 'تم الاستلام' : 'لم يستلم';
+
+        const formData = new FormData();
+        formData.append('fullName', fullName);
+        formData.append('militaryId', militaryId);
+        formData.append('jobTitle', job);
+        formData.append('otherJob', otherJob);
+        formData.append('suitStatus', suitStatus);
+        formData.append('suitDate', suitDate);
+        formData.append('shoesStatus', shoesStatus);
+        formData.append('shoesDate', shoesDate);
+        formData.append('bag', bag);
+        formData.append('rifleHolder', rifleHolder);
+        formData.append('redBeret', redBeret);
+        formData.append('belt', belt);
+        formData.append('gloves', gloves);
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'جارٍ الإرسال...';
+
+        fetch(SCRIPT_URL, { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+          if (data.result === 'success') {
+            localStorage.setItem('registeredMilitaryId', militaryId);
+            mainContainer.innerHTML = `
+              <div class="card" style="text-align:center;">
+                <div style="font-size:50px; color:#c6a45e;">🎖️</div>
+                <h2 style="color:#c6a45e;">تم التسجيل بنجاح</h2>
+                <p style="color:#aaa;">شكراً لك، تم استلام بياناتك.</p>
+              </div>`;
+          } else if (data.result === 'duplicate') {
+            alertBox.textContent = 'هذا الرقم العسكري مسجل مسبقاً في قاعدة البيانات.';
+            alertBox.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'إرسال البيانات ✅';
+          } else {
+            alertBox.textContent = 'حدث خطأ أثناء الإرسال. حاول مرة أخرى.';
+            alertBox.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'إرسال البيانات ✅';
+          }
+        })
+        .catch(err => {
+          alertBox.textContent = 'تعذر الاتصال بالسكربت. تأكد من الرابط.';
+          alertBox.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'إرسال البيانات ✅';
+        });
+      });
+
+    })();
+  </script>
+</body>
+</html>
