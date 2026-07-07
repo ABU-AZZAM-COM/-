@@ -1,622 +1,128 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>منظومة التسجيل العسكري</title>
-  <style>
-    :root {
-      --bg: #f4f4f0;
-      --card-bg: #ffffff;
-      --input-bg: #ffffff;
-      --input-border: #ccc;
-      --text-color: #222;
-      --heading-color: #3a3a3a;
-      --accent: #b08a3a;
-      --accent-light: #c6a45e;
-      --accent-dark: #8b6f2e;
-      --step-inactive-bg: #e0e0e0;
-      --step-inactive-text: #888;
-      --radio-bg: #f0f0f0;
-      --alert-bg: #fff3e0;
-      --alert-border: #b08a3a;
-      --footer-text: #666;
-      --overlay-bg: rgba(0, 0, 0, 0.7);
-      --popup-bg: #ffffff;
-      --splash-text: #555;
-      --error-border: #d32f2f;
-      --warning-alert-bg: #fff9c4;
-      --warning-alert-border: #f9a825;
-      --btn-hover: #8b6f2e;
-      --icon-color: #b08a3a;
+var JOB_ORDER = [
+  "ضابط قسم",
+  "صف ضابط قسم",
+  "قائد سرية",
+  "قائد مجموعة",
+  "سائق",
+  "عنصر",
+  "أخرى"
+];
+
+function doGet(e) {
+  return ContentService.createTextOutput("التطبيق يعمل.");
+}
+
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        "الاسم الثلاثي",
+        "الرقم العسكري",
+        "المسمى الوظيفي",
+        "المسمى الوظيفي (أخرى)",
+        "بدلة عسكرية",
+        "تاريخ استلام البدلة",
+        "حذاء عسكري",
+        "تاريخ استلام الحذاء",
+        "جعبة درع",
+        "حامل بندقية",
+        "بيريه لون أحمر",
+        "نطاق عسكري",
+        "قفازات"
+      ]);
     }
 
-    body.dark-mode {
-      --bg: #0e1117;
-      --card-bg: #151a24;
-      --input-bg: #1e2530;
-      --input-border: #2e3540;
-      --text-color: #e0e0e0;
-      --heading-color: #c6a45e;
-      --accent: #c6a45e;
-      --accent-light: #c6a45e;
-      --accent-dark: #9e8340;
-      --step-inactive-bg: #2a2f3a;
-      --step-inactive-text: #555;
-      --radio-bg: #1e2530;
-      --alert-bg: #2e1e1e;
-      --alert-border: #c6a45e;
-      --footer-text: #555;
-      --overlay-bg: rgba(0, 0, 0, 0.92);
-      --popup-bg: #1b1f2a;
-      --splash-text: #aaa;
-      --error-border: #e05555;
-      --warning-alert-bg: #332e1a;
-      --warning-alert-border: #c6a45e;
-      --btn-hover: #333827;
-      --icon-color: #c6a45e;
+    var params = e.parameter;
+    var fullName = (params.fullName || "").trim();
+    var militaryId = (params.militaryId || "").trim();
+    var jobTitle = params.jobTitle || "";
+    var otherJob = params.otherJob || "";
+
+    var suitStatus = params.suitStatus || "لم يستلم";
+    var suitDate = params.suitDate || "";
+    if (suitDate && suitDate.indexOf(" ") !== -1) {
+      var parts = suitDate.split(" ");
+      suitDate = parts[0] + "/" + parts[1];
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    var shoesStatus = params.shoesStatus || "لم يستلم";
+    var shoesDate = params.shoesDate || "";
+    if (shoesDate && shoesDate.indexOf(" ") !== -1) {
+      var parts = shoesDate.split(" ");
+      shoesDate = parts[0] + "/" + parts[1];
     }
 
-    body {
-      font-family: 'Tajawal', 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text-color);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow-x: hidden;
-      flex-direction: column;
-      transition: background 0.3s, color 0.3s;
-    }
+    var bag = params.bag || "لم يستلم";
+    var rifleHolder = params.rifleHolder || "لم يستلم";
+    var redBeret = params.redBeret || "لم يستلم";
+    var belt = params.belt || "لم يستلم";
+    var gloves = params.gloves || "لم يستلم";
 
-    .theme-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: var(--card-bg);
-      border: 1px solid var(--input-border);
-      color: var(--icon-color);
-      font-size: 24px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 1002;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: all 0.3s;
-      user-select: none;
-    }
-
-    .theme-toggle:hover {
-      transform: scale(1.05);
-    }
-
-    /* فقاعة واتساب */
-    .whatsapp-bubble {
-      position: fixed;
-      bottom: 30px;
-      left: 30px;
-      width: 60px;
-      height: 60px;
-      background: #25D366;
-      border-radius: 50%;
-      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 1003;
-      transition: transform 0.2s, box-shadow 0.2s;
-      color: white;
-      font-size: 30px;
-      text-decoration: none;
-    }
-
-    .whatsapp-bubble:hover {
-      transform: scale(1.1);
-      box-shadow: 0 10px 25px rgba(37, 211, 102, 0.5);
-    }
-
-    .whatsapp-bubble span {
-      position: absolute;
-      bottom: 70px;
-      background: #222;
-      color: #fff;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 13px;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-
-    .whatsapp-bubble:hover span {
-      opacity: 1;
-    }
-
-    /* Splash overlay */
-    .splash-overlay {
-      position: fixed;
-      inset: 0;
-      background: var(--overlay-bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      transition: opacity 0.5s ease;
-      flex-direction: column;
-    }
-
-    .splash-popup {
-      background: var(--popup-bg);
-      border: 2px solid var(--accent);
-      border-radius: 20px;
-      padding: 30px 25px;
-      text-align: center;
-      max-width: 340px;
-      width: 90%;
-      box-shadow: 0 0 30px rgba(0,0,0,0.2);
-      animation: popIn 0.4s ease;
-    }
-
-    @keyframes popIn {
-      0% { transform: scale(0.8); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    .splash-popup h2 {
-      color: var(--accent);
-      font-size: 24px;
-      margin-bottom: 12px;
-      font-family: 'Cairo', sans-serif;
-    }
-
-    .splash-popup p {
-      color: var(--splash-text);
-      font-size: 15px;
-      line-height: 1.6;
-    }
-
-    .spinner-container {
-      position: fixed;
-      inset: 0;
-      background: var(--overlay-bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      flex-direction: column;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-
-    .spinner {
-      width: 60px;
-      height: 60px;
-      border: 5px solid rgba(198,164,94,0.2);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .spinner-container p {
-      color: var(--accent);
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-
-    /* Main card */
-    .container {
-      width: 100%;
-      max-width: 550px;
-      margin: 20px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 24px;
-      padding: 28px 22px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.1), 0 0 0 2px rgba(176,138,58,0.3);
-      border: 1px solid var(--input-border);
-      transition: background 0.3s, box-shadow 0.3s;
-    }
-
-    .title-section {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .title-section h1 {
-      font-family: 'Cairo', sans-serif;
-      color: var(--heading-color);
-      font-size: 26px;
-      letter-spacing: 1px;
-    }
-
-    .progress-steps {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 32px;
-    }
-
-    .step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex: 1;
-      position: relative;
-      color: var(--step-inactive-text);
-      font-size: 13px;
-      font-weight: 500;
-      transition: color 0.3s;
-    }
-
-    .step.active, .step.completed {
-      color: var(--accent);
-    }
-
-    .step-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: var(--step-inactive-bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      margin-bottom: 8px;
-      border: 2px solid var(--step-inactive-text);
-      transition: all 0.3s;
-      font-weight: bold;
-      color: var(--step-inactive-text);
-    }
-
-    .step.active .step-icon, .step.completed .step-icon {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
-    }
-
-    .step-line {
-      height: 2px;
-      background: var(--step-inactive-bg);
-      flex: 1;
-      margin: 0 -10px;
-      margin-bottom: 24px;
-      transition: background 0.3s;
-    }
-
-    .step-line.completed {
-      background: var(--accent);
-    }
-
-    .form-section {
-      display: none;
-      animation: fadeSlide 0.4s ease;
-    }
-
-    .form-section.active {
-      display: block;
-    }
-
-    @keyframes fadeSlide {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      color: var(--text-color);
-      font-weight: 500;
-      font-size: 14px;
-    }
-
-    .req::after {
-      content: " *";
-      color: #e05555;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 14px 16px;
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 10px;
-      color: var(--text-color);
-      font-size: 15px;
-      font-family: inherit;
-      outline: none;
-      transition: border 0.2s, box-shadow 0.2s, background 0.3s;
-      margin-bottom: 18px;
-    }
-
-    input.error-border, select.error-border {
-      border-color: var(--error-border);
-      box-shadow: 0 0 0 3px rgba(211,47,47,0.2);
-    }
-
-    input:focus, select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(176,138,58,0.2);
-    }
-
-    .field-group {
-      margin-bottom: 6px;
-    }
-
-    .radio-group {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .radio-option {
-      flex: 1;
-      background: var(--radio-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 10px;
-      padding: 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-weight: 500;
-      color: var(--text-color);
-    }
-
-    .radio-option.selected {
-      background: var(--accent-light);
-      border-color: var(--accent);
-      color: #0e1117;
-    }
-
-    .dark-mode .radio-option.selected {
-      background: #2a3420;
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .radio-option input {
-      display: none;
-    }
-
-    .conditional-fields {
-      display: none;
-      animation: fadeSlide 0.3s;
-    }
-
-    .conditional-fields.show {
-      display: block;
-    }
-
-    .row {
-      display: flex;
-      gap: 12px;
-    }
-
-    .row > * {
-      flex: 1;
-    }
-
-    button {
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-      border: none;
-      color: #fff;
-      font-weight: bold;
-      font-size: 16px;
-      padding: 14px;
-      border-radius: 12px;
-      cursor: pointer;
-      width: 100%;
-      transition: transform 0.2s, box-shadow 0.2s;
-      font-family: 'Cairo', sans-serif;
-      letter-spacing: 1px;
-    }
-
-    button:hover {
-      background: linear-gradient(135deg, var(--accent-dark), var(--accent-dark));
-    }
-
-    button:active {
-      transform: scale(0.98);
-    }
-
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .btn-container {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-    }
-
-    .btn-container button:first-child {
-      background: transparent;
-      border: 1px solid var(--accent);
-      color: var(--accent);
-    }
-
-    .btn-container button:first-child:hover {
-      background: rgba(176,138,58,0.1);
-    }
-
-    .alert {
-      background: var(--alert-bg);
-      border: 1px solid var(--alert-border);
-      color: var(--text-color);
-      padding: 12px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      display: none;
-      font-weight: 500;
-    }
-
-    .alert.warning {
-      background: var(--warning-alert-bg);
-      border-color: var(--warning-alert-border);
-    }
-
-    .summary-list {
-      list-style: none;
-      margin-bottom: 24px;
-    }
-
-    .summary-list li {
-      padding: 8px 0;
-      border-bottom: 1px solid var(--input-border);
-      display: flex;
-      justify-content: space-between;
-      color: var(--text-color);
-    }
-
-    .external-footer {
-      text-align: center;
-      font-size: 13px;
-      color: var(--footer-text);
-      letter-spacing: 1px;
-      margin-top: 15px;
-      font-weight: 500;
-      z-index: 2;
-    }
-
-    @media (max-width: 500px) {
-      .card {
-        padding: 20px 15px;
-      }
-      .theme-toggle {
-        top: 10px;
-        right: 10px;
-        width: 38px;
-        height: 38px;
-        font-size: 20px;
-      }
-      .whatsapp-bubble {
-        bottom: 20px;
-        left: 20px;
-        width: 50px;
-        height: 50px;
-        font-size: 26px;
+    // منع تكرار الرقم العسكري
+    var lastRow = sheet.getLastRow();
+    if (lastRow > 1) {
+      var existingIds = sheet.getRange(2, 2, lastRow - 1, 1).getValues();
+      for (var i = 0; i < existingIds.length; i++) {
+        if (existingIds[i][0].toString().trim() === militaryId) {
+          return ContentService
+            .createTextOutput(JSON.stringify({ result: "duplicate" }))
+            .setMimeType(ContentService.MimeType.JSON);
+        }
       }
     }
-  </style>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-</head>
-<body>
 
-  <!-- زر التبديل بين الوضع الفاتح والداكن -->
-  <div class="theme-toggle" id="themeToggle" title="تغيير الوضع">☀️</div>
+    sheet.appendRow([
+      fullName,
+      militaryId,
+      jobTitle,
+      (jobTitle === "أخرى") ? otherJob : "",
+      suitStatus,
+      suitDate,
+      shoesStatus,
+      shoesDate,
+      bag,
+      rifleHolder,
+      redBeret,
+      belt,
+      gloves
+    ]);
 
-  <!-- فقاعة واتساب للاستفسار -->
-  <a class="whatsapp-bubble" id="whatsappBubble" href="https://wa.me/963951345692?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%20%D8%A7%D8%AE%20%D8%A7%D8%A8%D9%88%20%D8%B9%D8%B2%D8%A7%D9%85%20%D8%A7%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20" target="_blank" title="استفسار عبر واتساب">
-    💬
-    <span>استفسار</span>
-  </a>
+    sortSheetByJobTitle(sheet);
 
-  <!-- Splash Welcome Popup (النص الأصلي) -->
-  <div class="splash-overlay" id="splash">
-    <div class="splash-popup">
-      <h2>🪖 أهلاً بك</h2>
-      <p>يرجى تعبئة جميع البيانات بدقة ووفق الجداول المعتمدة</p>
-    </div>
-  </div>
+    return ContentService
+      .createTextOutput(JSON.stringify({ result: "success" }))
+      .setMimeType(ContentService.MimeType.JSON);
 
-  <!-- Spinner Loading -->
-  <div class="spinner-container" id="spinner">
-    <div class="spinner"></div>
-    <p>جارٍ تجهيز النموذج...</p>
-  </div>
+  } catch (error) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ result: "error", message: error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}
 
-  <!-- Main Container -->
-  <div class="container" id="mainContainer" style="display:none;">
-    <div class="card">
-      <div class="title-section">
-        <h1>نموذج التسجيل العسكري</h1>
-      </div>
+function sortSheetByJobTitle(sheet) {
+  var lastRow = sheet.getLastRow();
+  if (lastRow <= 1) return;
 
-      <!-- Progress Bar Steps -->
-      <div class="progress-steps" id="progressSteps">
-        <div class="step active" data-step="1">
-          <div class="step-icon">1</div>
-          <span>الأساسية</span>
-        </div>
-        <div class="step-line" id="line1"></div>
-        <div class="step" data-step="2">
-          <div class="step-icon">2</div>
-          <span>التجهيزات</span>
-        </div>
-        <div class="step-line" id="line2"></div>
-        <div class="step" data-step="3">
-          <div class="step-icon">3</div>
-          <span>مراجعة</span>
-        </div>
-      </div>
+  var range = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn());
+  var data = range.getValues();
 
-      <!-- رسالة التنبيه العامة -->
-      <div class="alert" id="alertBox"></div>
+  data.sort(function(rowA, rowB) {
+    var jobA = rowA[2].toString().trim();
+    var jobB = rowB[2].toString().trim();
+    var indexA = JOB_ORDER.indexOf(jobA);
+    var indexB = JOB_ORDER.indexOf(jobB);
+    if (indexA === -1) indexA = JOB_ORDER.length;
+    if (indexB === -1) indexB = JOB_ORDER.length;
+    return indexA - indexB;
+  });
 
-      <!-- FORM SECTIONS -->
-      <div id="formContainer">
-        <!-- Step 1: Basic Info -->
-        <div class="form-section active" data-section="1">
-          <div class="field-group">
-            <label class="req">الاسم الثلاثي</label>
-            <input type="text" id="fullName" placeholder="أدخل الاسم الثلاثي" required>
-          </div>
-          <div class="field-group">
-            <label class="req">الرقم العسكري</label>
-            <input type="text" id="militaryId" placeholder="أدخل الرقم العسكري (أحرف وأرقام)" required>
-          </div>
-          <div class="field-group">
-            <label class="req">المسمى الوظيفي</label>
-            <select id="jobTitle" required>
-              <option value="" disabled selected>اختر المسمى</option>
-              <option value="ضابط قسم">ضابط قسم</option>
-              <option value="صف ضابط قسم">صف ضابط قسم</option>
-              <option value="قائد سرية">قائد سرية</option>
-              <option value="قائد مجموعة">قائد مجموعة</option>
-              <option value="سائق">سائق</option>
-              <option value="عنصر">عنصر</option>
-              <option value="أخرى">أخرى</option>
-            </select>
-          </div>
-          <div class="field-group" id="otherJobContainer" style="display:none;">
-            <label class="req">حدد المسمى (أخرى)</label>
-            <input type="text" id="otherJob" placeholder="اكتب المسمى الوظيفي">
-          </div>
-          <button type="button" id="nextToStep2">التالي ←</button>
-        </div>
-
-        <!-- Step 2: Equipment -->
-        <div class="form-section" data-section="2">
-          <!-- بدلة عسكرية -->
-          <div class="field-group">
-            <label class="req">هل تملك بدلة عسكرية؟</label>
-            <div class="radio-group" data-name="suit">
-              <label class="radio-option" data-value="yes">
-                <input type="radio" name="suit" value="yes"> نعم
-              </label>
-              <label class="radio-option" data-value="no">
+  range.setValues(data);
+}
