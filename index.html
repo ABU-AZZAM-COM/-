@@ -355,15 +355,14 @@
       color: #c6a45e;
     }
 
-    .footer-credit {
+    .external-footer {
       text-align: center;
-      margin-top: 20px;
       font-size: 13px;
       color: #c6a45e;
       letter-spacing: 1px;
-      border-top: 1px solid #2a2f3a;
-      padding-top: 16px;
+      margin-top: 15px;
       font-weight: 500;
+      z-index: 2;
     }
 
     @media (max-width: 500px) {
@@ -539,7 +538,7 @@
 
           <!-- Other equipment yes/no -->
           <div class="field-group">
-            <label class="req">هل استلمت حقيبة درع؟</label>
+            <label class="req">هل استلمت جعبة درع؟</label>
             <div class="radio-group" data-name="bag">
               <label class="radio-option" data-value="yes"><input type="radio" name="bag" value="yes"> نعم</label>
               <label class="radio-option" data-value="no"><input type="radio" name="bag" value="no"> لا</label>
@@ -595,9 +594,6 @@
           <div class="alert" id="alertBox"></div>
         </div>
       </div>
-
-      <!-- Footer inside card -->
-      <div class="footer-credit">إعداد وتصميم أبو عزام</div>
     </div>
   </div>
 
@@ -607,16 +603,16 @@
       <div style="font-size:50px; color:#c6a45e;">🛡️</div>
       <h2 style="color:#c6a45e;">تم التسجيل مسبقاً</h2>
       <p style="color:#aaa;">لقد قمت بتسجيل بياناتك من هذا الجهاز ولا حاجة لإعادة التسجيل.</p>
-      <div class="footer-credit">إعداد وتصميم أبو عزام</div>
     </div>
   </div>
 
+  <!-- تذييل خارجي -->
+  <div class="external-footer">إعداد وتصميم أبو عزام</div>
+
   <script>
     (function() {
-      // رابط السكربت المقدم من المستخدم
       const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywunjzAdRbHCpQW_oRRrwrJQKBzRgw1AAoMR-J0AktjkG7y6qQwsRts_LbrWqZtYKqDw/exec';
 
-      // Elements
       const splash = document.getElementById('splash');
       const spinner = document.getElementById('spinner');
       const mainContainer = document.getElementById('mainContainer');
@@ -631,7 +627,6 @@
 
       let currentStep = 1;
 
-      // ---------- Splash & Loading sequence ----------
       setTimeout(() => {
         splash.style.opacity = '0';
         setTimeout(() => {
@@ -655,7 +650,6 @@
         }
       }, 3500);
 
-      // ---------- Job title "أخرى" toggle ----------
       const jobSelect = document.getElementById('jobTitle');
       const otherJobContainer = document.getElementById('otherJobContainer');
       jobSelect.addEventListener('change', function() {
@@ -668,7 +662,6 @@
         }
       });
 
-      // ---------- Radio button styling and conditional show/hide ----------
       document.querySelectorAll('.radio-group').forEach(group => {
         const radios = group.querySelectorAll('.radio-option');
         const name = group.dataset.name;
@@ -705,7 +698,6 @@
         });
       });
 
-      // ---------- Step navigation ----------
       function updateSteps() {
         steps.forEach(step => step.classList.remove('active', 'completed'));
         if (currentStep >= 1) steps[0].classList.add('completed');
@@ -792,7 +784,7 @@
           { label: 'المسمى الوظيفي', value: job + (job==='أخرى' ? ` (${otherJob})` : '') },
           { label: 'بدلة عسكرية', value: suitYes ? `تم الاستلام - قياس ${suitSize} - ${suitMonth}/${suitYear}` : 'لم يستلم' },
           { label: 'حذاء عسكري', value: shoesYes ? `تم الاستلام - قياس ${shoesSize} - ${shoesMonth}/${shoesYear}` : 'لم يستلم' },
-          { label: 'حقيبة درع', value: bag },
+          { label: 'جعبة درع', value: bag },
           { label: 'حامل بندقية', value: rifleHolder },
           { label: 'بيريه أحمر', value: redBeret },
           { label: 'نطاق عسكري', value: belt },
@@ -804,7 +796,6 @@
         ).join('');
       }
 
-      // ---------- Form Submission ----------
       submitBtn.addEventListener('click', function(e) {
         e.preventDefault();
         const fullName = document.getElementById('fullName').value.trim();
@@ -859,7 +850,6 @@
                 <div style="font-size:50px; color:#c6a45e;">🎖️</div>
                 <h2 style="color:#c6a45e;">تم التسجيل بنجاح</h2>
                 <p style="color:#aaa;">شكراً لك، تم استلام بياناتك.</p>
-                <div class="footer-credit">إعداد وتصميم أبو عزام</div>
               </div>`;
           } else if (data.result === 'duplicate') {
             alertBox.textContent = 'هذا الرقم العسكري مسجل مسبقاً في قاعدة البيانات.';
@@ -880,7 +870,6 @@
           submitBtn.textContent = 'إرسال البيانات ✅';
         });
       });
-
     })();
   </script>
 </body>
