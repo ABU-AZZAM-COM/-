@@ -102,51 +102,68 @@
       transform: scale(1.05);
     }
 
-    /* فقاعة واتساب */
-    .whatsapp-bubble {
+    /* نافذة التكرار المنبثقة */
+    .duplicate-overlay {
       position: fixed;
-      bottom: 30px;
-      left: 30px;
-      width: 60px;
-      height: 60px;
-      background: #25D366;
-      border-radius: 50%;
-      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
-      display: flex;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      z-index: 1003;
-      transition: transform 0.2s, box-shadow 0.2s;
-      color: white;
-      font-size: 30px;
-      text-decoration: none;
+      z-index: 2000;
     }
 
-    .whatsapp-bubble:hover {
-      transform: scale(1.1);
-      box-shadow: 0 10px 25px rgba(37, 211, 102, 0.5);
-    }
-
-    .whatsapp-bubble span {
-      position: absolute;
-      bottom: 70px;
-      background: #222;
-      color: #fff;
-      padding: 5px 12px;
+    .duplicate-popup {
+      background: var(--popup-bg);
+      border: 2px solid var(--accent);
       border-radius: 20px;
-      font-size: 13px;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
+      padding: 25px;
+      text-align: center;
+      max-width: 340px;
+      width: 90%;
+      box-shadow: 0 0 30px rgba(0,0,0,0.3);
+      animation: popIn 0.3s ease;
     }
 
-    .whatsapp-bubble:hover span {
-      opacity: 1;
+    .duplicate-popup h2 {
+      color: var(--accent);
+      font-size: 22px;
+      margin-bottom: 12px;
+      font-family: 'Cairo', sans-serif;
     }
 
-    /* Splash overlay */
+    .duplicate-popup p {
+      color: var(--text-color);
+      font-size: 15px;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .duplicate-popup a {
+      background: #25D366;
+      color: white;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+    }
+
+    .duplicate-popup .close-dup {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      margin-right: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* باقي التنسيقات كما هي دون تغيير */
     .splash-overlay {
       position: fixed;
       inset: 0;
@@ -224,7 +241,6 @@
       letter-spacing: 1px;
     }
 
-    /* Main card */
     .container {
       width: 100%;
       max-width: 550px;
@@ -514,27 +530,25 @@
         height: 38px;
         font-size: 20px;
       }
-      .whatsapp-bubble {
-        bottom: 20px;
-        left: 20px;
-        width: 50px;
-        height: 50px;
-        font-size: 26px;
-      }
     }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- زر التبديل بين الوضع الفاتح والداكن -->
   <div class="theme-toggle" id="themeToggle" title="تغيير الوضع">☀️</div>
 
-  <!-- فقاعة واتساب للاستفسار -->
-  <a class="whatsapp-bubble" id="whatsappBubble" href="https://wa.me/963951345692?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%20%D8%A7%D8%AE%20%D8%A7%D8%A8%D9%88%20%D8%B9%D8%B2%D8%A7%D9%85%20%D8%A7%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20" target="_blank" title="استفسار عبر واتساب">
-    💬
-    <span>استفسار</span>
-  </a>
+  <!-- نافذة التكرار المنبثقة (تظهر عند رقم مكرر) -->
+  <div class="duplicate-overlay" id="duplicateOverlay">
+    <div class="duplicate-popup">
+      <h2>⚠️ تنبيه</h2>
+      <p>هذا الرقم العسكري مسجل مسبقاً،<br>إذا أردت تعديل شيء تواصل مع أبو عزام.</p>
+      <a href="https://wa.me/963951345692?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%20%D8%A7%D8%A8%D9%88%20%D8%B9%D8%B2%D8%A7%D9%85%20%D8%A7%D8%B1%D9%8A%D8%AF%20%D8%AA%D8%B9%D8%AF%D9%8A%D9%84%20%D8%A8%D9%8A%D8%A7%D9%86%D8%A7%D8%AA%D9%8A%20%D9%81%D9%8A%20%D8%B3%D8%AC%D9%84%20%D8%A7%D9%84%D8%B2%D9%8A%20%D8%A7%D9%84%D8%B9%D8%B3%D9%83%D8%B1%D9%8A" target="_blank">
+        💬 تواصل واتساب
+      </a>
+      <button class="close-dup" onclick="document.getElementById('duplicateOverlay').style.display='none'">إغلاق</button>
+    </div>
+  </div>
 
   <!-- Splash Welcome Popup -->
   <div class="splash-overlay" id="splash">
@@ -550,14 +564,13 @@
     <p>جارٍ تجهيز النموذج...</p>
   </div>
 
-  <!-- Main Container -->
+  <!-- Main Container (يظهر دائماً بعد التحميل) -->
   <div class="container" id="mainContainer" style="display:none;">
     <div class="card">
       <div class="title-section">
         <h1>نموذج التسجيل العسكري</h1>
       </div>
 
-      <!-- Progress Bar Steps -->
       <div class="progress-steps" id="progressSteps">
         <div class="step active" data-step="1">
           <div class="step-icon">1</div>
@@ -575,12 +588,10 @@
         </div>
       </div>
 
-      <!-- رسالة التنبيه العامة -->
       <div class="alert" id="alertBox"></div>
 
-      <!-- FORM SECTIONS -->
       <div id="formContainer">
-        <!-- Step 1: Basic Info -->
+        <!-- Step 1 -->
         <div class="form-section active" data-section="1">
           <div class="field-group">
             <label class="req">الاسم الثلاثي</label>
@@ -610,18 +621,13 @@
           <button type="button" id="nextToStep2">التالي ←</button>
         </div>
 
-        <!-- Step 2: Equipment -->
+        <!-- Step 2 -->
         <div class="form-section" data-section="2">
-          <!-- بدلة عسكرية -->
           <div class="field-group">
             <label class="req">هل تملك بدلة عسكرية؟</label>
             <div class="radio-group" data-name="suit">
-              <label class="radio-option" data-value="yes">
-                <input type="radio" name="suit" value="yes"> نعم
-              </label>
-              <label class="radio-option" data-value="no">
-                <input type="radio" name="suit" value="no"> لا
-              </label>
+              <label class="radio-option" data-value="yes"><input type="radio" name="suit" value="yes"> نعم</label>
+              <label class="radio-option" data-value="no"><input type="radio" name="suit" value="no"> لا</label>
             </div>
           </div>
           <div class="conditional-fields" id="suitDetails">
@@ -654,27 +660,23 @@
             </div>
           </div>
 
-          <!-- حذاء عسكري -->
+          <div class="field-group">
+            <label class="req">قياس الحذاء</label>
+            <select id="shoesSize" required>
+              <option value="" disabled selected>اختر القياس</option>
+              <option>36</option><option>37</option><option>38</option><option>39</option><option>40</option>
+              <option>41</option><option>42</option><option>43</option><option>44</option><option>45</option><option>46</option>
+            </select>
+          </div>
+
           <div class="field-group">
             <label class="req">هل استلمت حذاء عسكري؟</label>
             <div class="radio-group" data-name="shoes">
-              <label class="radio-option" data-value="yes">
-                <input type="radio" name="shoes" value="yes"> نعم
-              </label>
-              <label class="radio-option" data-value="no">
-                <input type="radio" name="shoes" value="no"> لا
-              </label>
+              <label class="radio-option" data-value="yes"><input type="radio" name="shoes" value="yes"> نعم</label>
+              <label class="radio-option" data-value="no"><input type="radio" name="shoes" value="no"> لا</label>
             </div>
           </div>
           <div class="conditional-fields" id="shoesDetails">
-            <div class="field-group">
-              <label class="req">قياس الحذاء</label>
-              <select id="shoesSize">
-                <option value="" disabled selected>اختر القياس</option>
-                <option>36</option><option>37</option><option>38</option><option>39</option><option>40</option>
-                <option>41</option><option>42</option><option>43</option><option>44</option><option>45</option><option>46</option>
-              </select>
-            </div>
             <div class="row">
               <div class="field-group">
                 <label class="req">شهر الاستلام</label>
@@ -696,7 +698,6 @@
             </div>
           </div>
 
-          <!-- Other equipment yes/no -->
           <div class="field-group">
             <label class="req">هل استلمت جعبة درع؟</label>
             <div class="radio-group" data-name="bag">
@@ -743,7 +744,7 @@
           </div>
         </div>
 
-        <!-- Step 3: Review -->
+        <!-- Step 3 -->
         <div class="form-section" data-section="3">
           <h3 style="color:var(--heading-color); margin-bottom:16px;">ملخص البيانات</h3>
           <ul class="summary-list" id="summaryList"></ul>
@@ -756,21 +757,10 @@
     </div>
   </div>
 
-  <!-- Already registered message (hidden by default) -->
-  <div class="container" id="alreadyRegistered" style="display:none;">
-    <div class="card" style="text-align:center;">
-      <div style="font-size:50px; color:var(--accent);">🛡️</div>
-      <h2 style="color:var(--heading-color);">تم التسجيل مسبقاً</h2>
-      <p style="color:var(--text-color);">لقد قمت بتسجيل بياناتك من هذا الجهاز ولا حاجة لإعادة التسجيل.</p>
-    </div>
-  </div>
-
-  <!-- تذييل خارجي -->
   <div class="external-footer" id="pageFooter">إعداد وتصميم أبو عزام</div>
 
   <script>
     (function() {
-      // رابط السكربت الجديد
       const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxoB8-gwsBOKDH7bcEQ9U7qEZuKdQOXb9MSbdjhXXfqphOsfcvL_f7HBbCnKrplwEOUhw/exec';
 
       const body = document.body;
@@ -778,7 +768,7 @@
       const splash = document.getElementById('splash');
       const spinner = document.getElementById('spinner');
       const mainContainer = document.getElementById('mainContainer');
-      const alreadyRegisteredDiv = document.getElementById('alreadyRegistered');
+      const duplicateOverlay = document.getElementById('duplicateOverlay');
       const sections = document.querySelectorAll('.form-section');
       const steps = document.querySelectorAll('.step');
       const line1 = document.getElementById('line1');
@@ -788,7 +778,6 @@
       const submitBtn = document.getElementById('submitBtn');
       const pageFooter = document.getElementById('pageFooter');
 
-      // Dark/Light Mode
       function setTheme(isDark) {
         if (isDark) {
           body.classList.add('dark-mode');
@@ -807,7 +796,6 @@
 
       themeToggle.addEventListener('click', () => setTheme(!body.classList.contains('dark-mode')));
 
-      // Helper: Show validation error
       function showValidationError(message, errorFields = []) {
         document.querySelectorAll('.error-border').forEach(el => el.classList.remove('error-border'));
         errorFields.forEach(field => field.classList.add('error-border'));
@@ -825,7 +813,7 @@
         if (e.target.classList.contains('error-border')) e.target.classList.remove('error-border');
       });
 
-      // Splash & Loading sequence
+      // تسلسل البداية (يظهر النموذج دائماً بعد التحميل)
       setTimeout(() => {
         splash.style.opacity = '0';
         setTimeout(() => {
@@ -836,22 +824,14 @@
       }, 2500);
 
       setTimeout(() => {
-        if (localStorage.getItem('registeredMilitaryId')) {
-          spinner.style.opacity = '0';
+        spinner.style.opacity = '0';
+        setTimeout(() => {
           spinner.style.display = 'none';
-          alreadyRegisteredDiv.style.display = 'block';
-          pageFooter.style.display = 'none';
-        } else {
-          spinner.style.opacity = '0';
-          setTimeout(() => {
-            spinner.style.display = 'none';
-            mainContainer.style.display = 'block';
-            pageFooter.style.display = 'block';
-          }, 300);
-        }
+          mainContainer.style.display = 'block';
+          pageFooter.style.display = 'block';
+        }, 300);
       }, 3500);
 
-      // Job title "أخرى" toggle
       const jobSelect = document.getElementById('jobTitle');
       const otherJobContainer = document.getElementById('otherJobContainer');
       jobSelect.addEventListener('change', function() {
@@ -864,7 +844,6 @@
         }
       });
 
-      // Radio button styling and conditional show/hide
       document.querySelectorAll('.radio-group').forEach(group => {
         const radios = group.querySelectorAll('.radio-option');
         const name = group.dataset.name;
@@ -884,7 +863,7 @@
               });
             } else if (name === 'shoes') {
               document.getElementById('shoesDetails').classList.toggle('show', value === 'yes');
-              const fields = ['shoesSize', 'shoesMonth', 'shoesYear'];
+              const fields = ['shoesMonth', 'shoesYear'];
               fields.forEach(id => {
                 const el = document.getElementById(id);
                 if (value === 'no') el.removeAttribute('required');
@@ -895,7 +874,6 @@
         });
       });
 
-      // Step navigation
       let currentStep = 1;
       function updateSteps() {
         steps.forEach(step => step.classList.remove('active', 'completed'));
@@ -960,10 +938,12 @@
           });
         }
         if (shoesYes) {
-          ['shoesSize', 'shoesMonth', 'shoesYear'].forEach(id => {
+          ['shoesMonth', 'shoesYear'].forEach(id => {
             if (!document.getElementById(id).value) condErrors.push(document.getElementById(id));
           });
         }
+        if (!document.getElementById('shoesSize').value) condErrors.push(document.getElementById('shoesSize'));
+
         if (condErrors.length > 0) {
           showValidationError('يرجى إكمال تفاصيل البدلة / الحذاء.', condErrors);
           return;
@@ -984,8 +964,8 @@
         const suitSize = suitYes ? document.getElementById('suitSize').value : '';
         const suitMonth = suitYes ? document.getElementById('suitMonth').value : '';
         const suitYear = suitYes ? document.getElementById('suitYear').value : '';
+        const shoesSize = document.getElementById('shoesSize').value;
         const shoesYes = document.querySelector('input[name="shoes"]:checked').value === 'yes';
-        const shoesSize = shoesYes ? document.getElementById('shoesSize').value : '';
         const shoesMonth = shoesYes ? document.getElementById('shoesMonth').value : '';
         const shoesYear = shoesYes ? document.getElementById('shoesYear').value : '';
         const bag = document.querySelector('input[name="bag"]:checked').value === 'yes' ? 'تم الاستلام' : 'لم يستلم';
@@ -994,13 +974,13 @@
         const belt = document.querySelector('input[name="belt"]:checked').value === 'yes' ? 'تم الاستلام' : 'لم يستلم';
         const gloves = document.querySelector('input[name="gloves"]:checked').value === 'yes' ? 'تم الاستلام' : 'لم يستلم';
 
-        // الملخص يستخدم "/" كفاصل بين الشهر والسنة
         const summary = [
           { label: 'الاسم', value: fullName },
           { label: 'الرقم العسكري', value: militaryId },
           { label: 'المسمى الوظيفي', value: job + (job==='أخرى' ? ` (${otherJob})` : '') },
           { label: 'بدلة عسكرية', value: suitYes ? `تم الاستلام - قياس ${suitSize} - ${suitMonth}/${suitYear}` : 'لم يستلم' },
-          { label: 'حذاء عسكري', value: shoesYes ? `تم الاستلام - قياس ${shoesSize} - ${shoesMonth}/${shoesYear}` : 'لم يستلم' },
+          { label: 'قياس الحذاء', value: shoesSize },
+          { label: 'حذاء عسكري', value: shoesYes ? `تم الاستلام - ${shoesMonth}/${shoesYear}` : 'لم يستلم' },
           { label: 'جعبة درع', value: bag },
           { label: 'حامل بندقية', value: rifleHolder },
           { label: 'بيريه أحمر', value: redBeret },
@@ -1013,7 +993,6 @@
         ).join('');
       }
 
-      // Form Submission
       submitBtn.addEventListener('click', function(e) {
         e.preventDefault();
         const fullName = document.getElementById('fullName').value.trim();
@@ -1027,10 +1006,10 @@
         const suitMonth = suitYes ? document.getElementById('suitMonth').value : '';
         const suitYear = suitYes ? document.getElementById('suitYear').value : '';
         const suitDate = suitYes ? `${suitMonth} ${suitYear}` : '';
+        const shoesSize = document.getElementById('shoesSize').value;
         const shoesVal = document.querySelector('input[name="shoes"]:checked').value;
         const shoesYes = shoesVal === 'yes';
         const shoesStatus = shoesYes ? 'تم الاستلام' : 'لم يستلم';
-        const shoesSize = shoesYes ? document.getElementById('shoesSize').value : '';
         const shoesMonth = shoesYes ? document.getElementById('shoesMonth').value : '';
         const shoesYear = shoesYes ? document.getElementById('shoesYear').value : '';
         const shoesDate = shoesYes ? `${shoesMonth} ${shoesYear}` : '';
@@ -1047,6 +1026,7 @@
         formData.append('otherJob', otherJob);
         formData.append('suitStatus', suitStatus);
         formData.append('suitDate', suitDate);
+        formData.append('shoesSize', shoesSize);
         formData.append('shoesStatus', shoesStatus);
         formData.append('shoesDate', shoesDate);
         formData.append('bag', bag);
@@ -1062,7 +1042,7 @@
         .then(res => res.json())
         .then(data => {
           if (data.result === 'success') {
-            localStorage.setItem('registeredMilitaryId', militaryId);
+            // إظهار رسالة نجاح
             mainContainer.innerHTML = `
               <div class="card" style="text-align:center;">
                 <div style="font-size:50px; color:var(--accent);">🎖️</div>
@@ -1071,9 +1051,8 @@
               </div>`;
             pageFooter.style.display = 'none';
           } else if (data.result === 'duplicate') {
-            alertBox.textContent = 'هذا الرقم العسكري مسجل مسبقاً في قاعدة البيانات.';
-            alertBox.className = 'alert';
-            alertBox.style.display = 'block';
+            // إظهار نافذة التكرار
+            duplicateOverlay.style.display = 'flex';
             submitBtn.disabled = false;
             submitBtn.textContent = 'إرسال البيانات ✅';
           } else {
